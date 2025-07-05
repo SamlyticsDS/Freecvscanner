@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Optimization Results - Samlytics</title>
+    <link rel="icon" href="./samlytics-logo.png" type="image/png">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        }
+        .progress-bar {
+            background: linear-gradient(to right, #3b82f6, #84cc16);
+            transition: width 0.3s ease;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="min-h-screen gradient-bg text-white">
+    <!-- Navigation -->
+    <div class="container mx-auto px-4 py-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="./samlytics-logo.png" alt="Samlytics Logo" class="w-8 h-8 rounded-lg">
+                <span class="text-white font-semibold">Samlytics</span>
+                <span class="text-blue-400">CV Optimizer</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="downloadAll()" class="border border-slate-600 text-slate-300 hover:bg-slate-700 bg-transparent px-4 py-2 rounded-md flex items-center gap-2">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    Download All
+                </button>
+                <button onclick="window.open('https://samlytics.co.uk', '_blank')" 
+                        class="border border-slate-600 text-slate-300 hover:bg-slate-800 bg-transparent px-4 py-2 rounded-md flex items-center gap-2">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    Back to Samlytics
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex items-center gap-4 mb-6">
+            <button onclick="window.location.href='./index.html'" class="border border-slate-600 text-slate-300 hover:bg-slate-800 px-4 py-2 rounded-md flex items-center gap-2">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Back to Optimizer
+            </button>
+            <h1 class="text-3xl font-bold text-white">
+                ATS <span class="text-blue-400">Optimization</span> Results
+            </h1>
+        </div>
+
+        <!-- Score Cards -->
+        <div id="scoreCards" class="grid lg:grid-cols-3 gap-6 mb-8">
+            <!-- Will be populated by JavaScript -->
+        </div>
+
+        <!-- Tabs -->
+        <div class="space-y-6">
+            <div class="flex bg-slate-800 rounded-lg p-1">
+                <button onclick="switchTab('summary')" id="summaryTab" class="flex-1 py-2 px-4 rounded-md bg-blue-600 text-white">Professional Summary</button>
+                <button onclick="switchTab('skills')" id="skillsTab" class="flex-1 py-2 px-4 rounded-md text-slate-300">Core Skills</button>
+                <button onclick="switchTab('achievements')" id="achievementsTab" class="flex-1 py-2 px-4 rounded-md text-slate-300">Achievements</button>
+                <button onclick="switchTab('improvements')" id="improvementsTab" class="flex-1 py-2 px-4 rounded-md text-slate-300">ATS Improvements</button>
+            </div>
+
+            <!-- Tab Contents -->
+            <div id="tabContents">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        let analysisResult = null;
+        let currentTab = 'summary';
+        let copiedSection = null;
+
+        // Load results on page load
+        window.addEventListener('load', function() {
+            const storedResult = sessionStorage.getItem('analysisResult');
+            if (storedResult) {
+                analysisResult = JSON.parse(storedResult);
+                displayResults();
+            } else {
+                window.location.href = './index.html';
+            }
+        });
+
+        function displayResults() {
+            displayScoreCards();
+            displayTabContent();
+        }
+
+        function displayScoreCards() {
+            const scoreCards = document.getElementById('scoreCards');
+            scoreCards.innerHTML = `
+                <div class="bg-slate-800 border border-slate-700 rounded-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-medium text-white">Current ATS Score</h3>
+                        <i data-lucide="target" class="h-4 w-4 text-blue-400"></i>
+                    </div>
+                    <div class="text-2xl font-bold text-white mb-2">${analysisResult.atsScore}%</div>
+                    <div class="w-full bg-slate-700 rounded-full h-2 mb-2">
+                        <div class="progress-bar h-2 rounded-full" style="width: ${analysisResult.atsScore}%"></div>
+                    </div>
+                    <p class="text-xs text-slate-400">${analysisResult.atsScore >= 80 ? 'Good' : 'Needs Improvement'}</p>
+                </div>
+                <div class="bg-slate-800 border border-slate-700 rounded-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-medium text-white">Target ATS Score</h3>
+                        <i data-lucide="trending-up" class="h-4 w-4 text-lime-400"></i>
+                    </div>
+                    <div class="text-2xl font-bold text-lime-400 mb-2">${analysisResult.targetScore}%</div>
+                    <div class="w-full bg-slate-700 rounded-full h-2 mb-2">
+                        <div class="progress-bar h-2 rounded-full" style="width: ${analysisResult.targetScore}%"></div>
+                    </div>
+                    <p class="text-xs text-slate-400">After Optimization</p>
+                </div>
+                <div class="bg-slate-800 border border-slate-700 rounded-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-medium text-white">Missing Keywords</h3>
+                        <i data-lucide="alert-triangle" class="h-4 w-4 text-yellow-400"></i>
+                    </div>
+                    <div class="text-2xl font-bold text-white mb-2">${analysisResult.missingKeywords.length}</div>
+                    <p class="text-xs text-slate-400">Critical keywords to add</p>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Update tab buttons
+            const tabs = ['summary', 'skills', 'achievements', 'improvements'];
+            tabs.forEach(t => {
+                const tabBtn = document.getElementById(t + 'Tab');
+                if (t === tab) {
+                    tabBtn.classList.add('bg-blue-600', 'text-white');
+                    tabBtn.classList.remove('text-slate-300');
+                } else {
+                    tabBtn.classList.remove('bg-blue-600', 'text-white');
+                    tabBtn.classList.add('text-slate-300');
+                }
+            });
+
+            displayTabContent();
+        }
+
+        function displayTabContent() {
+            const tabContents = document.getElementById('tabContents');
+            
+            switch(currentTab) {
+                case 'summary':
+                    tabContents.innerHTML = `
+                        <div class="bg-slate-800 border border-slate-700 rounded-lg p-6">
+                            <div class="mb-4">
+                                <h2 class="text-white text-xl font-semibold flex items-center gap-2 mb-2">
+                                    <i data-lucide="user" class="w-5 h-5 text-blue-400"></i>
+                                    Optimized Professional Summary
+                                </h2>
+                                <p class="text-slate-300">Copy this summary to replace your current professional summary section</p>
+                            </div>
+                            <div class="bg-slate-700 p-4 rounded-lg border border-slate-600 mb-4">
+                                <p class="text-white leading-relaxed">${analysisResult.optimizedSummary}</p>
+                            </div>
+                            <button onclick="copyToClipboard('${analysisResult.optimizedSummary.replace(/'/g, "\\'")}', 'summary')" 
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center gap-2">
+                                <i data-lucide="copy" class="w-4 h-4"></i>
+                                <span id="summary-btn-text">Copy Summary</span>
+                            </button>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'skills':
+                    const skillsFormatted = analysisResult.coreSkills.join(' • ');
+                    tabContents.innerHTML = `
+                        <div class="bg-slate-800 border border-slate-700 rounded-lg p-6">
+                            <div class="mb-4">
+                                <h2 class="text-white text-xl font-semibold flex items-center gap-2 mb-2">
+                                    <i data-lucide="briefcase" class="w-5 h-5 text-lime-400"></i>
+                                    Core Skills Section
+                                </h2>
+                                <p class="text-slate-300">Essential skills that match the job posting keywords exactly</p>
+                            </div>
+                            <div class="bg-slate-700 p-4 rounded-lg border border-slate-600 mb-4">
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    ${analysisResult.coreSkills.map(skill => `<span class="bg-blue-600 text-white px-3 py-1 rounded-md text-sm">${skill}</span>`).join('')}
+                                </div>
+                                <div class="border-t border-slate-600 pt-4">
+                                    <p class="text-slate-300 text-sm mb-2">Formatted for CV:</p>
+                                    <p class="text-white">${skillsFormatted}</p>
+                                </div>
+                            </div>
+                            <button onclick="copyToClipboard('${skillsFormatted}', 'skills')" 
+                                    class="bg-lime-600 hover:bg-lime-700 text-white px-4 py-2 rounded-md flex items-center gap-2">
+                                <i data-lucide="copy" class="w-4 h-4"></i>
+                                <span id="skills-btn-text">Copy Skills</span>
+                            </button>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'achievements':
+                    const achievementsHtml = analysisResult.personalizedAchievements.map((achievement, index) => `
+                        <div class="bg-slate-700 p-4 rounded-lg border border-slate-600 mb-4">
+                            <div class="flex items-start justify-between mb-2">
+                                <h4 class="font-semibold text-white">${achievement.role}</h4>
+                                <button onclick="copyToClipboard('${achievement.achievement.replace(/'/g, "\\'")}', 'achievement-${index}')" 
+                                        class="border border-slate-600 text-slate-300 hover:bg-slate-600 px-3 py-1 rounded-md text-sm flex items-center gap-1">
+                                    <i data-lucide="copy" class="w-3 h-3"></i>
+                                    <span id="achievement-${index}-btn-text">Copy</span>
+                                </button>
+                            </div>
+                            <p class="text-slate-200 mb-3">${achievement.achievement}</p>
+                            <div class="flex flex-wrap gap-1">
+                                <span class="text-xs text-slate-400 mr-2">Keywords:</span>
+                                ${achievement.keywords.map(keyword => `<span class="text-xs border border-slate-500 text-slate-300 px-2 py-1 rounded">${keyword}</span>`).join('')}
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    const allAchievements = analysisResult.personalizedAchievements.map(a => `• ${a.achievement}`).join('\\n');
+                    
+                    tabContents.innerHTML = `
+                        <div class="bg-slate-800 border border-slate-700 rounded-lg p-6">
+                            <div class="mb-4">
+                                <h2 class="text-white text-xl font-semibold flex items-center gap-2 mb-2">
+                                    <i data-lucide="award" class="w-5 h-5 text-yellow-400"></i>
+                                    Personalized Achievements
+                                </h2>
+                                <p class="text-slate-300">Quantified achievement statements optimized for this role</p>
+                            </div>
+                            ${achievementsHtml}
+                            <button onclick="copyToClipboard('${allAchievements}', 'all-achievements')" 
+                                    class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md flex items-center gap-2">
+                                <i data-lucide="copy" class="w-4 h-4"></i>
+                                <span id="all-achievements-btn-text">Copy All Achievements</span>
+                            </button>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'improvements':
+                    const improvementsHtml = analysisResult.atsImprovements.map(improvement => `
+                        <div class="flex items-start gap-3 p-4 bg-slate-700 rounded-lg border border-slate-600 mb-4">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-lime-400 mt-0.5 flex-shrink-0"></i>
+                            <p class="text-sm text-slate-200">${improvement}</p>
+                        </div>
+                    `).join('');
+                    
+                    const keywordsHtml = analysisResult.missingKeywords.map(keyword => `
+                        <span class="bg-red-600 text-white px-3 py-1 rounded-md text-sm">${keyword}</span>
+                    `).join('');
+                    
+                    const densityHtml = Object.entries(analysisResult.keywordDensity).map(([keyword, density]) => `
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-sm font-medium text-white">${keyword}</span>
+                            <div class="flex items-center gap-2">
+                                <div class="w-20 bg-slate-700 rounded-full h-2">
+                                    <div class="progress-bar h-2 rounded-full" style="width: ${Math.min(density * 20, 100)}%"></div>
+                                </div>
+                                <span class="text-sm text-slate-400">${density}%</span>
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    tabContents.innerHTML = `
+                        <div class="grid gap-6">
+                            <div class="bg-slate-800 border border-slate-700 rounded-lg p-6">
+                                <div class="mb-4">
+                                    <h2 class="text-white text-xl font-semibold flex items-center gap-2 mb-2">
+                                        <i data-lucide="lightbulb" class="w-5 h-5 text-yellow-400"></i>
+                                        ATS Improvements
+                                    </h2>
+                                    <p class="text-slate-300">Specific changes to achieve 90-100% ATS compatibility</p>
+                                </div>
+                                ${improvementsHtml}
+                            </div>
+                            
+                            <div class="bg-slate-800 border border-slate-700 rounded-lg p-6">
+                                <div class="mb-4">
+                                    <h3 class="text-white text-lg font-semibold">Critical Missing Keywords</h3>
+                                    <p class="text-slate-300">Add these keywords to your CV to improve ATS scanning</p>
+                                </div>
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    ${keywordsHtml}
+                                </div>
+                                <button onclick="copyToClipboard('${analysisResult.missingKeywords.join(', ')}', 'keywords')" 
+                                        class="border border-slate-600 text-slate-300 hover:bg-slate-700 px-4 py-2 rounded-md flex items-center gap-2">
+                                    <i data-lucide="copy" class="w-4 h-4"></i>
+                                    <span id="keywords-btn-text">Copy Keywords</span>
+                                </button>
+                            </div>
+                            
+                            <div class="bg-slate-800 border border-slate-700 rounded-lg p-6">
+                                <div class="mb-4">
+                                    <h3 class="text-white text-lg font-semibold">Keyword Density Analysis</h3>
+                                    <p class="text-slate-300">Current keyword frequency in your CV</p>
+                                </div>
+                                ${densityHtml}
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            lucide.createIcons();
+        }
+
+        function copyToClipboard(text, section) {
+            navigator.clipboard.writeText(text).then(() => {
+                const btnText = document.getElementById(section + '-btn-text');
+                if (btnText) {
+                    const originalText = btnText.textContent;
+                    btnText.textContent = 'Copied!';
+                    setTimeout(() => {
+                        btnText.textContent = originalText;
+                    }, 2000);
+                }
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+
+        function downloadAll() {
+            if (!analysisResult) return;
+
+            const content = `ATS-OPTIMIZED CV SECTIONS
+========================
+
+PROFESSIONAL SUMMARY:
+${analysisResult.optimizedSummary}
+
+CORE SKILLS:
+${analysisResult.coreSkills.join(' • ')}
+
+PERSONALIZED ACHIEVEMENTS:
+${analysisResult.personalizedAchievements.map(achievement => `${achievement.role}: ${achievement.achievement}`).join('\n')}
+
+MISSING KEYWORDS TO ADD:
+${analysisResult.missingKeywords.join(', ')}
+
+ATS IMPROVEMENTS:
+${analysisResult.atsImprovements.map((improvement, index) => `${index + 1}. ${improvement}`).join('\n')}`;
+
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ats-optimized-cv-sections.txt';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+    </script>
+</body>
+</html>
